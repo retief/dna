@@ -1,0 +1,4 @@
+"docker-compose up" to start the dev server
+
+If you want to work on the frontend, "npm run dev" or "npm run build" will run
+webpack once, and "npm run watch" will make webpack run whenever something changes.
