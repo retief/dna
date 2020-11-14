@@ -1,6 +1,4 @@
-import json
-
-from django.http import JsonResponse, HttpResponse
+from django.http import JsonResponse
 from api.protein import search_protein
 from api.models import SearchResult
 
