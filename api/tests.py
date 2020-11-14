@@ -3,7 +3,7 @@ from unittest.mock import patch
 
 from django.test import TestCase
 
-from api import protein
+from api import genome
 
 
 class TestWithData(TestCase):
@@ -60,10 +60,10 @@ class TestContainsLocation(TestWithData):
         self._assert_not_in(self.feature2, 1023, 3)
 
     def _assert_in(self, feature, location, length):
-        self.assertTrue(protein.contains_location(feature, location, length))
+        self.assertTrue(genome.contains_location(feature, location, length))
 
     def _assert_not_in(self, feature, location, length):
-        self.assertFalse(protein.contains_location(feature, location, length))
+        self.assertFalse(genome.contains_location(feature, location, length))
 
 
 class TestGetProteinId(TestWithData):
@@ -76,13 +76,13 @@ class TestGetProteinId(TestWithData):
         self.quals2 = feature_table[3]["GBFeature_quals"]
 
     def test_finds_protein_when_present(self):
-        self.assertEqual(protein.get_protein_id(self.quals1), "YP_293755.1")
+        self.assertEqual(genome.get_protein_id(self.quals1), "YP_293755.1")
 
     def test_returns_none_when_no_id(self):
-        self.assertIsNone(protein.get_protein_id(self.quals2))
+        self.assertIsNone(genome.get_protein_id(self.quals2))
 
 
-class TestSearchProtein(TestWithData):
+class TestSearchGenome(TestWithData):
     def setUp(self):
         self.load_data()
 
@@ -90,8 +90,8 @@ class TestSearchProtein(TestWithData):
     def test_finds_query_in_early_feature(self, fetch_protein_data):
         fetch_protein_data.return_value = self.data
         self.assertEqual(
-            protein.search_protein("test", "catttctatc"),
-            protein.ProteinMatch(
+            genome.search_genome("test", "catttctatc"),
+            genome.GenomeMatch(
                 location=281,
                 feature_location="complement(276..1022)",
                 protein_id="YP_293755.1",
@@ -103,8 +103,8 @@ class TestSearchProtein(TestWithData):
     def test_finds_query_in_later_feature(self, fetch_protein_data):
         fetch_protein_data.return_value = self.data
         self.assertEqual(
-            protein.search_protein("test", "tgttgaaaca"),
-            protein.ProteinMatch(
+            genome.search_genome("test", "tgttgaaaca"),
+            genome.GenomeMatch(
                 location=1921,
                 feature_location="1920..2537",
                 protein_id="YP_293758.1",
@@ -115,5 +115,5 @@ class TestSearchProtein(TestWithData):
     @patch("api.protein.fetch_protein_data")
     def test_doesnt_find_nonexistent_query(self, fetch_protein_data):
         fetch_protein_data.return_value = self.data
-        self.assertIsNone(protein.search_protein("test", "catttctatcatccattac"))
+        self.assertIsNone(genome.search_genome("test", "catttctatcatccattac"))
         fetch_protein_data.assert_called_once_with("test")
