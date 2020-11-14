@@ -24,40 +24,46 @@ class TestContainsLocation(TestWithData):
         self.feature2 = feature_table[2]
 
     def test_returns_true_when_query_fully_contained(self):
-        self.assertTrue(protein.contains_location(self.feature1, 379, 3))
+        self._assert_in(self.feature1, 379, 3)
 
     def test_returns_true_when_query_touches_start(self):
-        self.assertTrue(protein.contains_location(self.feature1, 375, 4))
+        self._assert_in(self.feature1, 375, 4)
 
     def test_returns_true_when_query_touches_end(self):
-        self.assertTrue(protein.contains_location(self.feature1, 386, 3))
+        self._assert_in(self.feature1, 386, 3)
 
     def test_returns_true_when_query_contains_feature(self):
-        self.assertTrue(protein.contains_location(self.feature1, 375, 30))
+        self._assert_in(self.feature1, 375, 30)
 
     def test_returns_false_when_query_before_feature(self):
-        self.assertFalse(protein.contains_location(self.feature1, 375, 3))
+        self._assert_not_in(self.feature1, 375, 3)
 
     def test_returns_false_when_query_after_feature(self):
-        self.assertFalse(protein.contains_location(self.feature1, 387, 3))
+        self._assert_not_in(self.feature1, 387, 3)
 
     def test_returns_true_when_query_fully_contained_complement(self):
-        self.assertTrue(protein.contains_location(self.feature2, 280, 3))
+        self._assert_in(self.feature2, 280, 3)
 
     def test_returns_true_when_query_touches_start_complement(self):
-        self.assertTrue(protein.contains_location(self.feature2, 273, 4))
+        self._assert_in(self.feature2, 273, 4)
 
     def test_returns_true_when_query_touches_end_complement(self):
-        self.assertTrue(protein.contains_location(self.feature2, 1022, 3))
+        self._assert_in(self.feature2, 1022, 3)
 
     def test_returns_true_when_query_contains_feature_complement(self):
-        self.assertTrue(protein.contains_location(self.feature2, 270, 1000))
+        self._assert_in(self.feature2, 270, 1000)
 
     def test_returns_false_when_query_before_feature_complement(self):
-        self.assertFalse(protein.contains_location(self.feature2, 273, 3))
+        self._assert_not_in(self.feature2, 273, 3)
 
     def test_returns_false_when_query_after_feature_complement(self):
-        self.assertFalse(protein.contains_location(self.feature2, 1023, 3))
+        self._assert_not_in(self.feature2, 1023, 3)
+
+    def _assert_in(self, feature, location, length):
+        self.assertTrue(protein.contains_location(feature, location, length))
+
+    def _assert_not_in(self, feature, location, length):
+        self.assertFalse(protein.contains_location(feature, location, length))
 
 
 class TestGetProteinId(TestWithData):
