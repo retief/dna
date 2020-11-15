@@ -16,3 +16,16 @@ services:
       - "8000:8000"
     depends_on:
       - db
+      - rabbitmq
+
+  worker:
+    build: .
+    command: celery -A dna worker -l INFO
+    volumes:
+      - .:/code
+    depends_on:
+      - db
+      - rabbitmq
+
+  rabbitmq:
+    image: rabbitmq:3.8

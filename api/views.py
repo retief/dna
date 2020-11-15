@@ -1,32 +1,16 @@
 import json
-import threading
 
 from django.http import JsonResponse
-from api.genome import search_genome
+
 from api.models import SearchResult
-
-
-def run_search(genome, query, result_id):
-    match = search_genome(genome, query)
-    if match is not None:
-        defaults = {
-            "genome": genome,
-            "location": match.location,
-            "feature_location": match.feature_location,
-            "protein_id": match.protein_id,
-        }
-        SearchResult.objects.update_or_create(
-            id=result_id,
-            defaults=defaults,
-        )
+from api.tasks import run_search
 
 
 def start_search(request):
     query = json.loads(request.body)["query"]
     user_id = request.session["user_id"]
-    genome = "NC_007346"
     result = SearchResult.objects.create(user_id=user_id, query=query)
-    threading.Thread(target=run_search, args=(genome, query, result.id)).start()
+    run_search.delay(query, result.id, 0)
     return JsonResponse({"success": True})
 
 

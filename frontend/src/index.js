@@ -44,6 +44,11 @@ function SearchResult(props) {
     if (search.genome === "") {
         return <div>{search.query}:</div>
     }
+    if (search.feature_location === "") {
+    return (<div>
+        {search.query}: in genome {search.genome} at location {search.location}
+    </div>)
+    }
     return (<div>
         {search.query}: in genome {search.genome} at location {search.location} within protein {search.protein_id} at location {search.feature_location}
     </div>)
@@ -65,7 +70,6 @@ function App() {
             headers: {'X-CSRFToken': csrftoken},
         });
         await getResults();
-        console.log("gotten results");
     }
 
     useEffect(getResults, []);
