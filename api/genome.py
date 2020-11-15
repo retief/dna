@@ -4,6 +4,10 @@ from collections import namedtuple
 GenomeMatch = namedtuple("GenomeMatch", "location feature_location protein_id")
 
 
+def genome_file_path(genome):
+    return f"genome-data/{genome}.xml"
+
+
 def contains_location(feature, location, length):
     interval = feature["GBFeature_intervals"][0]
     start = int(interval["GBInterval_from"])
@@ -22,9 +26,9 @@ def get_protein_id(quals):
     return None
 
 
-def fetch_genome_data(protein):
-    with Entrez.efetch(db="nuccore", id=protein, rettype="gb", retmode="xml") as handle:
-        return Entrez.read(handle)
+def fetch_genome_data(genome):
+    with open(genome_file_path(genome), "rb") as f:
+        return Entrez.read(f)
 
 
 def search_genome(genome, query):

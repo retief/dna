@@ -1,27 +1,17 @@
-import json
-from unittest.mock import patch
-
 from django.test import TestCase
 
 from api import genome
 
 
-class TestWithData(TestCase):
-    def load_data(self):
-        with open("api/test_data.json", "r") as data_file:
-            self.data = json.load(data_file)
-
-
-class TestContainsLocation(TestWithData):
-    def setUp(self):
-        self.load_data()
-
-        feature_table = self.data[0]["GBSeq_feature-table"]
+class TestContainsLocation(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        feature_table = genome.fetch_genome_data("NC_007346")[0]["GBSeq_feature-table"]
 
         # from: 378, end: 386
-        self.feature1 = feature_table[3]
+        cls.feature1 = feature_table[3]
         # from: 1022, end: 276
-        self.feature2 = feature_table[2]
+        cls.feature2 = feature_table[2]
 
     def test_returns_true_when_query_fully_contained(self):
         self._assert_in(self.feature1, 379, 3)
@@ -66,14 +56,13 @@ class TestContainsLocation(TestWithData):
         self.assertFalse(genome.contains_location(feature, location, length))
 
 
-class TestGetProteinId(TestWithData):
-    def setUp(self):
-        self.load_data()
+class TestGetProteinId(TestCase):
+    @classmethod
+    def setUpTestData(cls):
+        feature_table = genome.fetch_genome_data("NC_007346")[0]["GBSeq_feature-table"]
 
-        feature_table = self.data[0]["GBSeq_feature-table"]
-
-        self.quals1 = feature_table[2]["GBFeature_quals"]
-        self.quals2 = feature_table[3]["GBFeature_quals"]
+        cls.quals1 = feature_table[2]["GBFeature_quals"]
+        cls.quals2 = feature_table[3]["GBFeature_quals"]
 
     def test_finds_protein_when_present(self):
         self.assertEqual(genome.get_protein_id(self.quals1), "YP_293755.1")
@@ -82,38 +71,26 @@ class TestGetProteinId(TestWithData):
         self.assertIsNone(genome.get_protein_id(self.quals2))
 
 
-class TestSearchGenome(TestWithData):
-    def setUp(self):
-        self.load_data()
-
-    @patch("api.protein.fetch_protein_data")
-    def test_finds_query_in_early_feature(self, fetch_protein_data):
-        fetch_protein_data.return_value = self.data
+class TestSearchGenome(TestCase):
+    def test_finds_query_in_early_feature(self):
         self.assertEqual(
-            genome.search_genome("test", "catttctatc"),
+            genome.search_genome("NC_007346", "catttctatc"),
             genome.GenomeMatch(
                 location=281,
                 feature_location="complement(276..1022)",
                 protein_id="YP_293755.1",
             ),
         )
-        fetch_protein_data.assert_called_once_with("test")
 
-    @patch("api.protein.fetch_protein_data")
-    def test_finds_query_in_later_feature(self, fetch_protein_data):
-        fetch_protein_data.return_value = self.data
+    def test_finds_query_in_later_feature(self):
         self.assertEqual(
-            genome.search_genome("test", "tgttgaaaca"),
+            genome.search_genome("NC_007346", "tgttgaaaca"),
             genome.GenomeMatch(
                 location=1921,
                 feature_location="1920..2537",
                 protein_id="YP_293758.1",
             ),
         )
-        fetch_protein_data.assert_called_once_with("test")
 
-    @patch("api.protein.fetch_protein_data")
-    def test_doesnt_find_nonexistent_query(self, fetch_protein_data):
-        fetch_protein_data.return_value = self.data
-        self.assertIsNone(genome.search_genome("test", "catttctatcatccattac"))
-        fetch_protein_data.assert_called_once_with("test")
+    def test_doesnt_find_nonexistent_query(self):
+        self.assertIsNone(genome.search_genome("NC_007346", "catttctatcatccattac"))
