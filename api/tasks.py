@@ -21,6 +21,11 @@ GENOMES = [
 
 @shared_task
 def run_search(query, result_id, call_count):
+    """Run a search for the given query string
+
+    Stores the results in a SearchResult with id result_id.  If it can't find a match
+    after trying 40 times, the search gets cancelled.
+    """
     if call_count > 40:
         # we probably should stop the search eventually so that we don't have an
         # infinite loop on failing searches.  With 10 things to search, there's
