@@ -2,3 +2,5 @@
 
 If you want to work on the frontend, "npm run dev" or "npm run build" will run
 webpack once, and "npm run watch" will make webpack run whenever something changes.
+
+In general, my goal was to use the technologies that I would have chosen in a larger app, even if they are a bit overkill here.  The frontend is rather barebones, because it didn't seem like the point of the project.
